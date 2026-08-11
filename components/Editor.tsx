@@ -7,6 +7,7 @@ import EditorNoticiasSection from "./editor/EditorNoticiasSection";
 import EditorLibroRecomendado from "./editor/EditorLibroRecomendado";
 import EditorNotaEditora from "./editor/EditorNotaEditora";
 import EditorFooter from "./editor/EditorFooter";
+import EditorChrome from "./editor/EditorChrome";
 
 /**
  * Formulario editable completo del newsletter. Cada sección lee y
@@ -35,6 +36,7 @@ export default function Editor() {
       <EditorLibroRecomendado />
       <EditorNotaEditora />
       <EditorFooter />
+      <EditorChrome />
     </div>
   );
 }

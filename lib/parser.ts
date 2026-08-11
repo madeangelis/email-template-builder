@@ -9,6 +9,7 @@ import type {
   NotaEditora,
   ParseResult,
   ParseWarning,
+  PlantillaChrome,
   UltimasActualizaciones,
 } from "@/types/newsletter";
 import { sanitizeInlineHtml, stripInlineHtml } from "@/lib/sanitize";
@@ -383,6 +384,20 @@ export function parseNewsletterHtml(html: string): ParseResult {
 
   const footer = parseFooter(blocks, i, warnings);
 
+  // El .docx nunca trae estos textos/URLs (son "chrome" fijo de la
+  // plantilla, no contenido editorial), así que se completan con los
+  // valores actuales de la plantilla real. Quedan editables en el
+  // Editor por si se necesita ajustar alguno puntualmente.
+  const chrome: PlantillaChrome = {
+    eyebrowInternacionales: "Últimas actualizaciones",
+    tituloInternacionales: "Internacionales",
+    tituloRegionales: "Regionales",
+    eyebrowNotaEditora: "NOTA DE LA EDITORA",
+    tituloFooterRLG: "RLG",
+    logoUrl: "https://www.gerontologia.org/wp-content/uploads/2025/12/cropped-logo_gerontologia.png",
+    imagenLibroUrl: "https://www.gerontologia.org/wp-content/uploads/2022/04/Opcion-por-la-vejez.jpg",
+  };
+
   return {
     newsletter: {
       encabezado,
@@ -393,6 +408,7 @@ export function parseNewsletterHtml(html: string): ParseResult {
       libroRecomendado,
       notaEditora,
       footer,
+      chrome,
     },
     warnings,
   };
@@ -408,10 +424,17 @@ function parseNotaEditora(block: Block | undefined, warnings: ParseWarning[]): N
     .map((r, idx) => ({ run: r, idx }))
     .filter(({ run }) => run.type === "link");
 
-  const texto = block.runs
-    .filter((r) => r.type !== "link")
+  // El texto de intro es SOLO lo que aparece antes del primer link (el
+  // mailto de la coordinadora). Tomar todos los runs no-link del bloque
+  // entero arrastra los conectores sueltos entre cada corresponsal
+  // ("en Argentina:", "en Brasil:", etc.), que no son parte de la frase
+  // introductoria y no deberían mostrarse como si lo fueran.
+  const primerLinkIndex = block.runs.findIndex((r) => r.type === "link");
+  const runsIntro = primerLinkIndex === -1 ? block.runs : block.runs.slice(0, primerLinkIndex);
+  const texto = runsIntro
     .map((r) => r.text)
     .join("")
+    .replace(/^\s*nota de la editora\s*:?\s*/i, "") // ya se muestra como título de sección
     .replace(/\s+/g, " ")
     .trim();
 

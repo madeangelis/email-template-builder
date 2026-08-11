@@ -18,6 +18,7 @@ import type {
   Noticia,
   NotaEditora,
   ParseWarning,
+  PlantillaChrome,
   UltimasActualizaciones,
 } from "@/types/newsletter";
 
@@ -71,6 +72,15 @@ export function newsletterVacio(): Newsletter {
       mensajeSuscripcion: "",
       linkBajaSuscripcion: "",
     },
+    chrome: {
+      eyebrowInternacionales: "Últimas actualizaciones",
+      tituloInternacionales: "Internacionales",
+      tituloRegionales: "Regionales",
+      eyebrowNotaEditora: "NOTA DE LA EDITORA",
+      tituloFooterRLG: "RLG",
+      logoUrl: "https://www.gerontologia.org/wp-content/uploads/2025/12/cropped-logo_gerontologia.png",
+      imagenLibroUrl: "https://www.gerontologia.org/wp-content/uploads/2022/04/Opcion-por-la-vejez.jpg",
+    },
   };
 }
 
@@ -103,7 +113,8 @@ type Action =
   | { type: "ADD_CORRESPONSAL" }
   | { type: "REMOVE_CORRESPONSAL"; id: string }
   | { type: "UPDATE_CORRESPONSAL"; id: string; patch: Partial<Corresponsal> }
-  | { type: "UPDATE_FOOTER"; patch: Partial<Footer> };
+  | { type: "UPDATE_FOOTER"; patch: Partial<Footer> }
+  | { type: "UPDATE_CHROME"; patch: Partial<PlantillaChrome> };
 
 function moverElemento<T>(lista: T[], fromIndex: number, toIndex: number): T[] {
   if (
@@ -291,6 +302,12 @@ function reducer(state: State, action: Action): State {
         newsletter: { ...newsletter, footer: { ...newsletter.footer, ...action.patch } },
       };
 
+    case "UPDATE_CHROME":
+      return {
+        ...state,
+        newsletter: { ...newsletter, chrome: { ...newsletter.chrome, ...action.patch } },
+      };
+
     default:
       return state;
   }
@@ -325,6 +342,7 @@ interface NewsletterContextValue {
   removeCorresponsal: (id: string) => void;
   updateCorresponsal: (id: string, patch: Partial<Corresponsal>) => void;
   updateFooter: (patch: Partial<Footer>) => void;
+  updateChrome: (patch: Partial<PlantillaChrome>) => void;
 }
 
 const NewsletterContext = createContext<NewsletterContextValue | null>(null);
@@ -404,6 +422,10 @@ export function NewsletterProvider({ children }: { children: ReactNode }) {
     (patch: Partial<Footer>) => dispatch({ type: "UPDATE_FOOTER", patch }),
     []
   );
+  const updateChrome = useCallback(
+    (patch: Partial<PlantillaChrome>) => dispatch({ type: "UPDATE_CHROME", patch }),
+    []
+  );
 
   const value = useMemo<NewsletterContextValue>(
     () => ({
@@ -427,6 +449,7 @@ export function NewsletterProvider({ children }: { children: ReactNode }) {
       removeCorresponsal,
       updateCorresponsal,
       updateFooter,
+      updateChrome,
     }),
     [
       state,
@@ -448,6 +471,7 @@ export function NewsletterProvider({ children }: { children: ReactNode }) {
       removeCorresponsal,
       updateCorresponsal,
       updateFooter,
+      updateChrome,
     ]
   );
 

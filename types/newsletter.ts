@@ -61,6 +61,16 @@ export interface Footer {
   linkBajaSuscripcion: string;
 }
 
+export interface PlantillaChrome {
+  eyebrowInternacionales: string;
+  tituloInternacionales: string;
+  tituloRegionales: string;
+  eyebrowNotaEditora: string;
+  tituloFooterRLG: string;
+  logoUrl: string;
+  imagenLibroUrl: string;
+}
+
 export interface Newsletter {
   encabezado: Encabezado;
   editorial: Editorial;
@@ -70,6 +80,7 @@ export interface Newsletter {
   libroRecomendado: LibroRecomendado;
   notaEditora: NotaEditora;
   footer: Footer;
+  chrome: PlantillaChrome;
 }
 
 export interface ParseWarning {

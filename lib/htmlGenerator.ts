@@ -203,12 +203,12 @@ function renderHead(newsletter: Newsletter): string {
 </head>`;
 }
 
-function renderLogoRow(utm: UtmContext): string {
+function renderLogoRow(newsletter: Newsletter, utm: UtmContext): string {
   return `
         <tr>
           <td style="text-align:center;background-color:${COLOR_PRIMARY};height:110px;padding:5px 150px;" align="center" bgcolor="${COLOR_PRIMARY}">
             <a href="${withUtm("https://www.gerontologia.org/", utm)}" style="${ADJUST}text-decoration:none;">
-              <img src="https://www.gerontologia.org/wp-content/uploads/2025/12/cropped-logo_gerontologia.png" alt="logo RLG" style="${ADJUST}-ms-interpolation-mode:bicubic;width:100%;" />
+              <img src="${escapeHtml(newsletter.chrome.logoUrl)}" alt="logo RLG" style="${ADJUST}-ms-interpolation-mode:bicubic;width:100%;" />
             </a>
           </td>
         </tr>`;
@@ -257,8 +257,8 @@ function renderInternacionalesSection(newsletter: Newsletter, utm: UtmContext): 
               <tr style="${ADJUST}">
                 <td style="${TD_RESET}padding:2.5em;background:${BG_SECTION};">
                   <div class="heading-section" style="${ADJUST}text-align:center;padding:0 30px;">
-                    <span class="subheading" style="${ADJUST}${SUBHEADING_STYLE}">Últimas actualizaciones</span>
-                    <h2 style="${ADJUST}${TITLE_SERIF_28}">Internacionales</h2>
+                    <span class="subheading" style="${ADJUST}${SUBHEADING_STYLE}">${escapeHtml(newsletter.chrome.eyebrowInternacionales)}</span>
+                    <h2 style="${ADJUST}${TITLE_SERIF_28}">${escapeHtml(newsletter.chrome.tituloInternacionales)}</h2>
                   </div>
                   <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="${TABLE_RESET}">${items}
                   </table>
@@ -267,7 +267,17 @@ function renderInternacionalesSection(newsletter: Newsletter, utm: UtmContext): 
 }
 
 function renderNoticiasPorPaisSection(newsletter: Newsletter, utm: UtmContext): string {
-  return newsletter.noticiasPorPais.map((n) => renderNoticiaPais(n, utm)).join("");
+  if (newsletter.noticiasPorPais.length === 0) return "";
+  const heading = `
+              <tr style="${ADJUST}">
+                <td class="bg_light" style="${TD_RESET}width:100%;padding:2.5em;background:${BG_SECTION};">
+                  <div class="heading-section" style="${ADJUST}text-align:center;padding:30px 30px;">
+                    <h2 style="${ADJUST}${TITLE_SERIF_28}">${escapeHtml(newsletter.chrome.tituloRegionales)}</h2>
+                  </div>
+                </td>
+              </tr>`;
+  const items = newsletter.noticiasPorPais.map((n) => renderNoticiaPais(n, utm)).join("");
+  return heading + items;
 }
 
 function renderLibroRecomendadoRow(newsletter: Newsletter): string {
@@ -277,7 +287,7 @@ function renderLibroRecomendadoRow(newsletter: Newsletter): string {
                 <td style="text-align:center;width:100%;height:110px;" align="center">
                   <a href="${safeHref(libro.linkDescarga)}" style="${ADJUST}text-decoration:none;text-align:center;">
                     <br />
-                    <img src="https://www.gerontologia.org/wp-content/uploads/2022/04/Opcion-por-la-vejez.jpg" alt="${escapeHtml(libro.seccionTitulo)}" style="${ADJUST}-ms-interpolation-mode:bicubic;width:30%;padding:0 210px;" />
+                    <img src="${escapeHtml(newsletter.chrome.imagenLibroUrl)}" alt="${escapeHtml(libro.seccionTitulo)}" style="${ADJUST}-ms-interpolation-mode:bicubic;width:30%;padding:0 210px;" />
                   </a>
                   <h2>${escapeHtml(libro.seccionTitulo)}</h2>
                   <p>
@@ -295,7 +305,7 @@ function renderNotaEditoraRow(newsletter: Newsletter): string {
               <tr style="${ADJUST}">
                 <td class="bg_white email-section" style="${TD_RESET}background:${BG_SECTION};padding:2.5em;">
                   <div class="heading-section" style="${ADJUST}text-align:center;padding:0 30px;">
-                    <span class="subheading" style="${ADJUST}${SUBHEADING_STYLE}">Nota de la Editora</span>
+                    <span class="subheading" style="${ADJUST}${SUBHEADING_STYLE}">${escapeHtml(newsletter.chrome.eyebrowNotaEditora)}</span>
                     <p style="${ADJUST}color:${TEXT_BODY};">${escapeHtml(notaEditora.texto)}</p>
                   </div>
                 </td>
@@ -309,7 +319,7 @@ function renderFooterColumnaRLG(newsletter: Newsletter, utm: UtmContext): string
                   <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="${TABLE_RESET}">
                     <tr style="${ADJUST}">
                       <td style="${TD_RESET}text-align:left;padding-right:10px;" align="left">
-                        <h3 class="heading" style="${ADJUST}font-family:'Playfair Display',serif;margin-top:0;color:#ffffff;font-size:16px;">RLG</h3>
+                        <h3 class="heading" style="${ADJUST}font-family:'Playfair Display',serif;margin-top:0;color:#ffffff;font-size:16px;">${escapeHtml(newsletter.chrome.tituloFooterRLG)}</h3>
                         <p style="${ADJUST}color:#fff;font-size:12px;">${escapeHtml(encabezado.subtitulo)}</p>
                         <a href="${withUtm("https://www.gerontologia.org", utm)}" style="${ADJUST}color:#fff;font-size:12px;" target="_blank" rel="noopener noreferrer">
                           ${escapeHtml(encabezado.sitioWeb)}
@@ -412,7 +422,7 @@ export function generateHtml(newsletter: Newsletter): string {
       &zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
     </div>
     <div style="${ADJUST}max-width:600px;margin:0 auto;" class="email-container">
-      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="${TABLE_RESET}">${renderLogoRow(utm)}
+      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="${TABLE_RESET}">${renderLogoRow(newsletter, utm)}
         <tr>
           <td style="${TD_RESET}">
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="${TABLE_RESET}">${renderEdicionRow(newsletter, utm)}${renderEditorialRow(newsletter, utm)}${renderInternacionalesSection(newsletter, utm)}${renderNoticiasPorPaisSection(newsletter, utm)}${renderLibroRecomendadoRow(newsletter)}${renderNotaEditoraRow(newsletter)}
